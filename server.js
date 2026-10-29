@@ -2,6 +2,7 @@ const path = require("path");
 const fs = require("fs");
 const express = require("express");
 const axios = require("axios");
+const { getCatalog } = require("./lib/dataCatalog");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -492,6 +493,16 @@ app.get("/api/ranking", async (_req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "No se pudo obtener el ranking." });
+  }
+});
+
+app.get("/api/drops", (_req, res) => {
+  try {
+    const catalog = getCatalog();
+    res.json(catalog);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "No se pudo leer el catálogo de drops." });
   }
 });
 

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Drops — PjsVivos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell app-shell-wide">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-badge">PeruMU</span>
+          <div>
+            <h1>Drops</h1>
+            <p>Monstruos, mapas e ítems desde Data</p>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <span class="status-text" id="status">Cargando…</span>
+          <button type="button" id="refresh" class="p-button p-button-primary">
+            Actualizar
+          </button>
+        </div>
+      </header>
+
+      <nav class="app-nav" aria-label="Secciones">
+        <a href="/">Online / Ranking</a>
+        <a href="/drops.html" class="active">Drops</a>
+      </nav>
+
+      <section class="p-card drops-filters">
+        <div class="drops-filters-grid">
+          <div class="p-float-label">
+            <input id="filter-monster" type="search" placeholder=" " autocomplete="off" />
+            <label for="filter-monster">Monstruo</label>
+          </div>
+          <div class="p-float-label">
+            <input
+              id="filter-map"
+              type="search"
+              list="map-options"
+              placeholder=" "
+              autocomplete="off"
+            />
+            <label for="filter-map">Mapa</label>
+            <datalist id="map-options"></datalist>
+          </div>
+          <div class="p-float-label">
+            <input
+              id="filter-item"
+              type="search"
+              list="item-options"
+              placeholder=" "
+              autocomplete="off"
+            />
+            <label for="filter-item">Ítem / drop</label>
+            <datalist id="item-options"></datalist>
+          </div>
+          <div class="p-float-label">
+            <select id="filter-type">
+              <option value="">Todos</option>
+              <option value="Normal">Normal</option>
+              <option value="Elite">Elite</option>
+            </select>
+            <label for="filter-type">Tipo</label>
+          </div>
+        </div>
+        <div class="drops-meta">
+          <span id="drops-count">—</span>
+          <button type="button" id="clear-filters" class="p-button p-button-text">
+            Limpiar filtros
+          </button>
+        </div>
+      </section>
+
+      <section class="p-card drops-table-wrap">
+        <table class="drops-table" id="drops-table">
+          <thead>
+            <tr>
+              <th>Monstruo</th>
+              <th>Lvl</th>
+              <th>Tipo</th>
+              <th>Mapas</th>
+              <th>Drops (ítems)</th>
+            </tr>
+          </thead>
+          <tbody id="drops-body">
+            <tr>
+              <td colspan="5" class="empty">Cargando catálogo…</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+    <script src="/drops.js"></script>
+  </body>
+</html>
