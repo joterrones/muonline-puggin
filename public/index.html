@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PjsVivos — PeruMU</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-badge">PeruMU</span>
+          <div>
+            <h1>PjsVivos</h1>
+            <p>Online de guilds y ranking del server</p>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <span class="status-text" id="status">Listo</span>
+          <button type="button" id="refresh" class="p-button p-button-primary">Actualizar</button>
+        </div>
+      </header>
+
+      <div class="p-accordion" id="main-accordion">
+        <div class="p-accordion-tab" data-accordion="guilds">
+          <button type="button" class="p-accordion-header" aria-expanded="true" aria-controls="panel-guilds">
+            <span class="p-accordion-toggle-icon" aria-hidden="true"></span>
+            <span class="p-accordion-header-text">Guilds a seguir</span>
+          </button>
+          <div class="p-accordion-content" id="panel-guilds">
+            <div class="p-accordion-content-inner">
+              <p class="hint">Elige qué guilds aparecen en el panel online.</p>
+              <div class="form-row">
+                <div class="p-float-label grow">
+                  <input
+                    list="guild-options"
+                    id="guild-input"
+                    type="text"
+                    placeholder=" "
+                    autocomplete="off"
+                  />
+                  <label for="guild-input">Nombre del guild</label>
+                  <datalist id="guild-options"></datalist>
+                </div>
+                <button type="button" id="add-guild" class="p-button p-button-outlined">Agregar</button>
+              </div>
+              <div class="chip-row" id="guild-chips"></div>
+              <div class="filter-block">
+                <span class="filter-label">Mostrar online</span>
+                <div class="chip-row" id="filter-chips"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-accordion-tab" data-accordion="online">
+          <button type="button" class="p-accordion-header" aria-expanded="true" aria-controls="panel-online">
+            <span class="p-accordion-toggle-icon" aria-hidden="true"></span>
+            <span class="p-accordion-header-text">Online</span>
+            <span class="p-badge" id="online-summary">—</span>
+          </button>
+          <div class="p-accordion-content" id="panel-online">
+            <div class="p-accordion-content-inner">
+              <div class="guild-grid" id="guild-grid">
+                <p class="empty">Configura al menos un guild para ver quién está online.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-accordion-tab" data-accordion="ranking">
+          <button type="button" class="p-accordion-header" aria-expanded="true" aria-controls="panel-ranking">
+            <span class="p-accordion-toggle-icon" aria-hidden="true"></span>
+            <span class="p-accordion-header-text">Ranking</span>
+            <span class="p-badge p-badge-secondary" id="rank-summary">—</span>
+          </button>
+          <div class="p-accordion-content" id="panel-ranking">
+            <div class="p-accordion-content-inner">
+              <div class="form-row">
+                <div class="p-float-label grow">
+                  <input id="rank-filter" type="search" placeholder=" " />
+                  <label for="rank-filter">Filtrar por PJ</label>
+                </div>
+              </div>
+
+              <div class="p-datatable">
+                <table>
+                  <thead>
+                    <tr>
+                      <th style="width: 4rem">#</th>
+                      <th>Nombre</th>
+                      <th>Clase</th>
+                      <th>LVL</th>
+                      <th>EXP</th>
+                      <th>Estado</th>
+                      <th>Ubicación</th>
+                      <th style="width: 5.5rem"></th>
+                    </tr>
+                  </thead>
+                  <tbody id="top-list">
+                    <tr>
+                      <td colspan="8" class="empty-cell">Cargando ranking…</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="p-paginator">
+                <button type="button" id="prev-page" class="p-button p-button-text" disabled>Anterior</button>
+                <span class="p-paginator-report" id="page-label">Página 1</span>
+                <button type="button" id="next-page" class="p-button p-button-text" disabled>Siguiente</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
