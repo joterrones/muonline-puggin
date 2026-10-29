@@ -7,9 +7,11 @@
     "dev": "node server.js"
   },
   "dependencies": {
+    "@sparticuz/chromium": "^147.0.0",
     "axios": "^1.13.6",
     "cheerio": "^1.1.0",
     "express": "^5.2.1",
-    "puppeteer": "^24.39.0"
+    "puppeteer": "^24.39.0",
+    "puppeteer-core": "^24.43.1"
   }
 }

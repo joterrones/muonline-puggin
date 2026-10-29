@@ -300,13 +300,28 @@ async function loadOnline() {
     return;
   }
   const data = await api(`/api/online?ids=${encodeURIComponent(ids.join(","))}`, {
-    retries: 4,
-    retryDelayMs: 2500,
+    retries: 3,
+    retryDelayMs: 3000,
     onRetry: (attempt, total) => {
       setStatus(`Cargando online… reintento ${attempt}/${total}`);
     },
   });
-  renderOnline(data.guilds || []);
+  const guilds = data.guilds || [];
+  renderOnline(guilds);
+
+  // Si todos vinieron con error de navegador, un reintento extra tras esperar
+  const allBrowserFail =
+    guilds.length > 0 &&
+    guilds.every((g) => g.error && /navegador|Reintenta|arranc/i.test(g.error));
+  if (allBrowserFail) {
+    setStatus("Reintentando online…");
+    await sleep(4000);
+    const again = await api(`/api/online?ids=${encodeURIComponent(ids.join(","))}`, {
+      retries: 2,
+      retryDelayMs: 3000,
+    });
+    renderOnline(again.guilds || []);
+  }
 }
 
 async function loadRanking(force = false) {
@@ -343,7 +358,6 @@ async function refreshAll() {
       setStatus("Cargando online de guilds…");
       await loadOnline();
     } catch (onlineErr) {
-      console.error(onlineErr);
       renderOnline([
         {
           guild: "Online",
@@ -351,6 +365,7 @@ async function refreshAll() {
           error: "El online tardó o falló. Prueba Actualizar en unos segundos.",
         },
       ]);
+      setStatus("Ranking OK · online pendiente");
     }
     const now = new Date().toLocaleTimeString("es-PE", {
       hour: "2-digit",

@@ -2,7 +2,6 @@ const path = require("path");
 const fs = require("fs");
 const express = require("express");
 const axios = require("axios");
-const puppeteer = require("puppeteer");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -12,15 +11,7 @@ const RANKING_TOP = 25000;
 const MIN_RANKING_LEVEL = 1200;
 const CACHE_MS = 60_000;
 const RANKING_CACHE_MS = 5 * 60_000;
-const LAUNCH_ARGS = [
-  "--no-sandbox",
-  "--disable-setuid-sandbox",
-  "--disable-dev-shm-usage",
-  "--disable-gpu",
-  "--disable-software-rasterizer",
-  "--no-zygote",
-  "--single-process",
-];
+const IS_RENDER = process.env.RENDER === "true" || Boolean(process.env.RENDER_EXTERNAL_URL);
 
 const cache = {
   ranking: { data: null, levelsByName: null, at: 0 },
@@ -68,12 +59,34 @@ function writeGuilds(list) {
   return cleaned;
 }
 
-async function withBrowser(fn) {
-  const browser = await puppeteer.launch({
+async function launchBrowser() {
+  if (IS_RENDER) {
+    const chromium = require("@sparticuz/chromium");
+    const puppeteerCore = require("puppeteer-core");
+    return puppeteerCore.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport || { width: 1280, height: 720 },
+      executablePath: await chromium.executablePath(),
+      headless: typeof chromium.headless === "boolean" ? chromium.headless : true,
+      ignoreHTTPSErrors: true,
+    });
+  }
+
+  const puppeteer = require("puppeteer");
+  return puppeteer.launch({
     headless: true,
-    args: LAUNCH_ARGS,
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-gpu",
+    ],
     timeout: 60_000,
   });
+}
+
+async function withBrowser(fn) {
+  const browser = await launchBrowser();
   try {
     return await fn(browser);
   } finally {
@@ -201,9 +214,10 @@ async function scrapeGuildOnline(browser, guild) {
 
   const page = await browser.newPage();
   try {
+    page.setDefaultNavigationTimeout(25_000);
     await page.goto(`https://perumu.com/guild/${guild.id}/DEFAULT`, {
-      waitUntil: "networkidle2",
-      timeout: 45_000,
+      waitUntil: "domcontentloaded",
+      timeout: 25_000,
     });
     await page.waitForFunction(
       () =>
@@ -211,7 +225,7 @@ async function scrapeGuildOnline(browser, guild) {
         [...document.querySelectorAll("table")].some((t) =>
           /Status/i.test(t.innerText)
         ),
-      { timeout: 30_000 }
+      { timeout: 20_000 }
     );
 
     const result = await page.evaluate(() => {
@@ -320,21 +334,37 @@ app.get("/api/online", async (req, res) => {
       return res.json({ guilds: [] });
     }
 
-    const guilds = await withBrowser(async (browser) =>
-      Promise.all(
-        selected.map((g) =>
-          scrapeGuildOnline(browser, g).catch((err) => {
-            console.error(err);
-            return {
+    // Responder siempre 200: si Chrome falla en Render, devolvemos error por guild
+    // en vez de 500 (que en el free tier se ve como caída del servicio).
+    let guilds;
+    try {
+      guilds = await withBrowser(async (browser) => {
+        const results = [];
+        for (const g of selected) {
+          try {
+            results.push(await scrapeGuildOnline(browser, g));
+          } catch (err) {
+            console.error(`online ${g.name}:`, err.message || err);
+            results.push({
               id: g.id,
               guild: g.name,
               players: [],
-              error: "No se pudo obtener jugadores online.",
-            };
-          })
-        )
-      )
-    );
+              error: "No se pudo obtener jugadores online. Reintenta.",
+            });
+          }
+        }
+        return results;
+      });
+    } catch (err) {
+      console.error("browser launch:", err.message || err);
+      guilds = selected.map((g) => ({
+        id: g.id,
+        guild: g.name,
+        players: [],
+        error:
+          "El servidor no pudo abrir el navegador (típico en el primer arranque). Pulsa Actualizar.",
+      }));
+    }
 
     res.json({ guilds });
   } catch (err) {
