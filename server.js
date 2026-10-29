@@ -3,6 +3,7 @@ const fs = require("fs");
 const express = require("express");
 const axios = require("axios");
 const { getCatalog } = require("./lib/dataCatalog");
+const { getMapSpawns } = require("./lib/mapSpawns");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -503,6 +504,15 @@ app.get("/api/drops", (_req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "No se pudo leer el catálogo de drops." });
+  }
+});
+
+app.get("/api/maps", (_req, res) => {
+  try {
+    res.json(getMapSpawns());
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "No se pudo leer los spawns de mapas." });
   }
 });
 

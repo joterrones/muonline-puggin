@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Maps — PjsVivos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell app-shell-wide">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-badge">PeruMU</span>
+          <div>
+            <h1>Maps</h1>
+            <p>Spots y monstruos desde MonsterSpawn</p>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <span class="status-text" id="status">Cargando…</span>
+          <button type="button" id="refresh" class="p-button p-button-primary">
+            Actualizar
+          </button>
+        </div>
+      </header>
+
+      <nav class="app-nav" aria-label="Secciones">
+        <a href="/">Online / Ranking</a>
+        <a href="/drops.html">Drops</a>
+        <a href="/maps.html" class="active">Maps</a>
+      </nav>
+
+      <section class="maps-layout">
+        <aside class="p-card maps-sidebar">
+          <div class="p-float-label maps-search">
+            <input id="map-search" type="search" placeholder=" " autocomplete="off" />
+            <label for="map-search">Buscar mapa</label>
+          </div>
+          <label class="maps-toggle">
+            <input type="checkbox" id="filter-elite" />
+            Solo mapas con elite
+          </label>
+          <div class="maps-list" id="maps-list"></div>
+        </aside>
+
+        <div class="maps-main">
+          <section class="p-card maps-summary" id="map-summary">
+            <p class="empty">Selecciona un mapa</p>
+          </section>
+
+          <section class="p-card maps-viewer">
+            <div class="maps-legend">
+              <span><i class="legend-swatch legend-normal"></i> Normal</span>
+              <span><i class="legend-swatch legend-elite"></i> Elite</span>
+              <span class="maps-hint">Hover en un área para detalle</span>
+            </div>
+            <div class="maps-canvas-wrap">
+              <svg
+                id="map-svg"
+                class="maps-svg"
+                viewBox="0 0 256 256"
+                role="img"
+                aria-label="Mapa de spawns"
+              ></svg>
+              <div id="map-tooltip" class="maps-tooltip" hidden></div>
+            </div>
+          </section>
+
+          <section class="p-card maps-spots">
+            <h2 class="maps-spots-title">Spots</h2>
+            <div id="spots-list" class="spots-list">
+              <p class="empty">—</p>
+            </div>
+          </section>
+        </div>
+      </section>
+    </div>
+    <script src="/maps.js"></script>
+  </body>
+</html>
