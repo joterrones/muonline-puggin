@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+// ============================================================
+// == INTERNATIONAL GAMING CENTER NETWORK
+// == www.igcn.mu
+// == (C) 2022 IGC-Network (R)
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// == File is a part of IGCN Group MuOnline Server files.
+// ============================================================
+//
+//~~ For detailed explanation of the bags system refer to ### Item Bags System Description ###.txt included in \Data\ItemBags\
+-->
+
+<ItemBag>
+<BagConfig Name="Item_(19,30)_Box_Lev_400" ItemRate="10000" SetItemRate="0" SetItemCount="1" MasterySetItemInclude="0" MoneyDrop="100" IsPentagramForBeginnersDrop="0" PartyDropRate="0" PartyOneDropOnly="0" PartyShareType="0" BagUseEffect="-1" BagUseRate="10000" />
+<SummonBook Enable="0" DropRate="0" ItemCat="0" ItemIndex="0" />
+<AddCoin Enable="0" CoinType="0" CoinValue="0" PlayerMinLevel="1" PlayerMaxLevel="MAX" PlayerMinReset="0" PlayerMaxReset="MAX" />
+<Ruud GainRate="10000" MinValue="400000" MaxValue="400000" PlayerMinLevel="1" PlayerMaxLevel="MAX" PlayerMinReset="0" PlayerMaxReset="MAX" />
+
+<DropSection UseMode="-1" DisplayName="Section 1">
+	<DropAllow DW="1" DK="1" ELF="1" MG="1" DL="1" SU="1" RF="1" GL="1" RW="1" SLA="1" GC="1" LW="1" LM="1" IK="1" AC="1" CR="1" PlayerMinLevel="1" PlayerMaxLevel="MAX" PlayerMinReset="0" PlayerMaxReset="MAX" MapNumber="-1">
+		<Drop Rate="10000" Type="1" Count="9">
+			<Item Cat="14" Index="13" ItemMinLevel="0" ItemMaxLevel="0" Durability="255" Skill="0" Luck="0" Option="0" Exc="0" SetItem="0" SocketCount="0" ElementalItem="0" /><!--Bless-->
+			<Item Cat="14" Index="14" ItemMinLevel="0" ItemMaxLevel="0" Durability="255" Skill="0" Luck="0" Option="0" Exc="0" SetItem="0" SocketCount="0" ElementalItem="0" /><!--Soul-->
+			<Item Cat="14" Index="13" ItemMinLevel="0" ItemMaxLevel="0" Durability="255" Skill="0" Luck="0" Option="0" Exc="0" SetItem="0" SocketCount="0" ElementalItem="0" /><!--Bless-->
+			<Item Cat="14" Index="14" ItemMinLevel="0" ItemMaxLevel="0" Durability="255" Skill="0" Luck="0" Option="0" Exc="0" SetItem="0" SocketCount="0" ElementalItem="0" /><!--Soul-->
+			<Item Cat="14" Index="16" ItemMinLevel="0" ItemMaxLevel="0" Durability="255" Skill="0" Luck="0" Option="0" Exc="0" SetItem="0" SocketCount="0" ElementalItem="0" /><!--Life-->
+			<Item Cat="14" Index="16" ItemMinLevel="0" ItemMaxLevel="0" Durability="255" Skill="0" Luck="0" Option="0" Exc="0" SetItem="0" SocketCount="0" ElementalItem="0" /><!--Life-->
+			<Item Cat="12" Index="15" ItemMinLevel="0" ItemMaxLevel="0" Durability="255" Skill="0" Luck="0" Option="0" Exc="0" SetItem="0" SocketCount="0" ElementalItem="0" /><!--Chaos-->
+			<Item Cat="14" Index="22" ItemMinLevel="0" ItemMaxLevel="0" Durability="255" Skill="0" Luck="0" Option="0" Exc="0" SetItem="0" SocketCount="0" ElementalItem="0" /><!--Creation-->
+			<Item Cat="14" Index="22" ItemMinLevel="0" ItemMaxLevel="0" Durability="255" Skill="0" Luck="0" Option="0" Exc="0" SetItem="0" SocketCount="0" ElementalItem="0" /><!--Creation-->
+		
+			<Item Cat="13" Index="37" ItemMinLevel="0" ItemMaxLevel="0" Durability="-1" Skill="2" Luck="0" Option="0" Exc="4" SetItem="0" SocketCount="0" ElementalItem="0" />	<!--Fenri Azul-->
+			<Item Cat="12" Index="406" ItemMinLevel="0" ItemMaxLevel="0" Durability="255" Skill="0" Luck="0" Option="0" Exc="0" SetItem="0" SocketCount="0" ElementalItem="0" /> <!--Greater Spirit Stone-->
+			<Item Cat="14" Index="53" ItemMinLevel="0" ItemMaxLevel="0" Durability="255" Skill="0" Luck="0" Option="0" Exc="0" SetItem="0" SocketCount="0" ElementalItem="0" /><!--Talisman of Luck-->	
+			<Item Cat="20" Index="116" ItemMinLevel="0" ItemMaxLevel="0" Durability="1" Skill="0" Luck="0" Option="0" Exc="0" SetItem="0" SocketCount="0" ElementalItem="0" />	<!--Relic S3-->		
+			<Item Cat="13" Index="171" ItemMinLevel="0" ItemMaxLevel="0" Durability="-1" Skill="1" Luck="0" Option="7" Exc="1;2;3;4;5" SetItem="0" SocketCount="0" ElementalItem="0" />	<!--Necklace Agony-->	
+			<Item Cat="14" Index="224" ItemMinLevel="0" ItemMaxLevel="0" Durability="255" Skill="0" Luck="0" Option="0" Exc="0" SetItem="0" SocketCount="0" ElementalItem="0" />		<!--Bless of Light (Greater)-->				
+		</Drop>			
+	</DropAllow>
+</DropSection>
+</ItemBag>

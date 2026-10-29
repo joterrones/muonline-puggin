@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+// ============================================================
+// == INTERNATIONAL GAMING CENTER NETWORK
+// == www.igcn.mu
+// == (C) IGC-Network (R)
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// == File is a part of IGCN Group MuOnline Server files.
+// ============================================================
+//
+// STRICTLY NO COMMENTS INSIDE TAGS
+-->
+<CashItemPackage>
+	<Package GUID="0" ID="0" ItemSequence="0" UniqueID1="229" UniqueID2="289" Description="Rare Item Ticket 8_BLUE" />
+	<Package GUID="1" ID="0" ItemSequence="1" UniqueID1="239" UniqueID2="299" Description="Seed (Lightning)_BLUE" />
+	<Package GUID="2" ID="0" ItemSequence="2" UniqueID1="240" UniqueID2="300" Description="Seed (Earth)_BLUE" />
+	<Package GUID="3" ID="0" ItemSequence="3" UniqueID1="242" UniqueID2="302" Description="Seed (Ice Mana)_BLUE" />
+	<Package GUID="4" ID="0" ItemSequence="4" UniqueID1="349" UniqueID2="418" Description="Jewel of Chaos Bundle (30)_BLUE" />
+	<Package GUID="5" ID="0" ItemSequence="5" UniqueID1="350" UniqueID2="419" Description="Jewel of Life Bundle (30)_BLUE" />
+	<Package GUID="0" ID="2" ItemSequence="0" UniqueID1="1057" UniqueID2="1464" Description="Mysterious Stone" />
+	<Package GUID="1" ID="2" ItemSequence="1" UniqueID1="1057" UniqueID2="1464" Description="Mysterious Stone" />
+	<Package GUID="2" ID="2" ItemSequence="2" UniqueID1="1057" UniqueID2="1464" Description="Mysterious Stone" />
+	<Package GUID="3" ID="2" ItemSequence="3" UniqueID1="1057" UniqueID2="1464" Description="Mysterious Stone" />
+	<Package GUID="4" ID="2" ItemSequence="4" UniqueID1="1057" UniqueID2="1464" Description="Mysterious Stone" />
+	<Package GUID="5" ID="2" ItemSequence="5" UniqueID1="1057" UniqueID2="1464" Description="Mysterious Stone" />
+	<Package GUID="6" ID="2" ItemSequence="6" UniqueID1="1057" UniqueID2="1464" Description="Mysterious Stone" />
+	<Package GUID="7" ID="2" ItemSequence="7" UniqueID1="1057" UniqueID2="1464" Description="Mysterious Stone" />
+	<Package GUID="8" ID="2" ItemSequence="8" UniqueID1="1057" UniqueID2="1464" Description="Mysterious Stone" />
+	<Package GUID="9" ID="2" ItemSequence="9" UniqueID1="1057" UniqueID2="1464" Description="Mysterious Stone" />
+	<Package GUID="0" ID="3" ItemSequence="0" UniqueID1="2086" UniqueID2="3410" Description="BA Hammer" />
+	<Package GUID="1" ID="3" ItemSequence="1" UniqueID1="2085" UniqueID2="3409" Description="BA Crusader Shield" />
+	<Package GUID="2" ID="3" ItemSequence="2" UniqueID1="2095" UniqueID2="3419" Description="BA Crusader Helmet" />
+	<Package GUID="3" ID="3" ItemSequence="3" UniqueID1="2105" UniqueID2="3429" Description="BA Crusader Armor" />
+	<Package GUID="4" ID="3" ItemSequence="4" UniqueID1="2115" UniqueID2="3439" Description="BA Crusader Pants" />
+	<Package GUID="5" ID="3" ItemSequence="5" UniqueID1="2126" UniqueID2="3450" Description="BA Crusader Gloves" />
+	<Package GUID="6" ID="3" ItemSequence="6" UniqueID1="2142" UniqueID2="3466" Description="Cloak of Aspiration" />
+	<Package GUID="0" ID="18" ItemSequence="0" UniqueID1="1590" UniqueID2="2592" Description="Wings of Magic" />
+	<Package GUID="1" ID="18" ItemSequence="1" UniqueID1="1741" UniqueID2="2941" Description="Blood Angel Wand" />
+	<Package GUID="2" ID="18" ItemSequence="2" UniqueID1="1742" UniqueID2="2942" Description="Blood Angel Elixir" />
+	<Package GUID="3" ID="18" ItemSequence="3" UniqueID1="1743" UniqueID2="2943" Description="Blood Angel Alchemist Helmet" />
+	<Package GUID="4" ID="18" ItemSequence="4" UniqueID1="1744" UniqueID2="2944" Description="Blood Angel Alchemist Armor" />
+	<Package GUID="5" ID="18" ItemSequence="5" UniqueID1="1745" UniqueID2="2945" Description="Blood Angel Alchemist Pants" />
+	<Package GUID="6" ID="18" ItemSequence="6" UniqueID1="1746" UniqueID2="2946" Description="Blood Angel Alchemist Gloves" />
+	<Package GUID="7" ID="18" ItemSequence="7" UniqueID1="1747" UniqueID2="2947" Description="Blood Angel Alchemist Boots" />
+	<Package GUID="0" ID="20" ItemSequence="0" UniqueID1="2017" UniqueID2="3339" Description="BA Knight Helm" />
+	<Package GUID="1" ID="20" ItemSequence="1" UniqueID1="2018" UniqueID2="3340" Description="BA Knight Armor" />
+	<Package GUID="2" ID="20" ItemSequence="2" UniqueID1="2019" UniqueID2="3341" Description="BA Knight Pants" />
+	<Package GUID="3" ID="20" ItemSequence="3" UniqueID1="2020" UniqueID2="3342" Description="BA Knight Boots" />
+	<Package GUID="4" ID="20" ItemSequence="4" UniqueID1="2051" UniqueID2="3373" Description="BA Sword" />
+	<Package GUID="5" ID="20" ItemSequence="5" UniqueID1="2051" UniqueID2="3373" Description="BA Sword" />
+	<Package GUID="6" ID="20" ItemSequence="6" UniqueID1="2127" UniqueID2="3451" Description="Wings of Storm" />
+	<Package GUID="0" ID="21" ItemSequence="0" UniqueID1="1923" UniqueID2="3158" Description="BA Wizard Helm" />
+	<Package GUID="1" ID="21" ItemSequence="1" UniqueID1="1921" UniqueID2="3156" Description="BA Wizard Armor" />
+	<Package GUID="2" ID="21" ItemSequence="2" UniqueID1="1925" UniqueID2="3160" Description="BA Wizard Gloves" />
+	<Package GUID="3" ID="21" ItemSequence="3" UniqueID1="1924" UniqueID2="3159" Description="BA Wizard Pants" />
+	<Package GUID="4" ID="21" ItemSequence="4" UniqueID1="2052" UniqueID2="3374" Description="BA Staff" />
+	<Package GUID="5" ID="21" ItemSequence="5" UniqueID1="2128" UniqueID2="3452" Description="Wings of Eternal" />
+	<Package GUID="0" ID="22" ItemSequence="0" UniqueID1="2023" UniqueID2="3345" Description="BA Elf Helm (A)" />
+	<Package GUID="1" ID="22" ItemSequence="1" UniqueID1="2024" UniqueID2="3346" Description="BA Elf Armor (A)" />
+	<Package GUID="2" ID="22" ItemSequence="2" UniqueID1="2025" UniqueID2="3347" Description="BA Elf Pants (A)" />
+	<Package GUID="3" ID="22" ItemSequence="3" UniqueID1="2026" UniqueID2="3348" Description="BA Elf Gloves (A)" />
+	<Package GUID="4" ID="22" ItemSequence="4" UniqueID1="2053" UniqueID2="3375" Description="BA Bow" />
+	<Package GUID="5" ID="22" ItemSequence="5" UniqueID1="2054" UniqueID2="3376" Description="BA Quiver" />
+	<Package GUID="6" ID="22" ItemSequence="6" UniqueID1="2129" UniqueID2="3453" Description="Wings of Illusion" />
+	<Package GUID="0" ID="23" ItemSequence="0" UniqueID1="2029" UniqueID2="3351" Description="BA Magic Armor (A)" />
+	<Package GUID="1" ID="23" ItemSequence="1" UniqueID1="2030" UniqueID2="3352" Description="BA Magic Pants (A)" />
+	<Package GUID="2" ID="23" ItemSequence="2" UniqueID1="2031" UniqueID2="3353" Description="BA Magic Gloves (A)" />
+	<Package GUID="3" ID="23" ItemSequence="3" UniqueID1="2032" UniqueID2="3354" Description="BA Magic Boots (A)" />
+	<Package GUID="4" ID="23" ItemSequence="4" UniqueID1="2055" UniqueID2="3377" Description="BA Magic Sword" />
+	<Package GUID="5" ID="23" ItemSequence="5" UniqueID1="2055" UniqueID2="3377" Description="BA Magic Sword" />
+	<Package GUID="6" ID="23" ItemSequence="6" UniqueID1="2056" UniqueID2="3378" Description="BA Magic Two-Handed Sword" />
+	<Package GUID="7" ID="23" ItemSequence="7" UniqueID1="2130" UniqueID2="3454" Description="Wings of Ruin" />
+	<Package GUID="0" ID="24" ItemSequence="0" UniqueID1="2036" UniqueID2="3358" Description="BA Lord Helm" />
+	<Package GUID="1" ID="24" ItemSequence="1" UniqueID1="2037" UniqueID2="3359" Description="BA Lord Armor" />
+	<Package GUID="2" ID="24" ItemSequence="2" UniqueID1="2038" UniqueID2="3360" Description="BA Lord Pants" />
+	<Package GUID="3" ID="24" ItemSequence="3" UniqueID1="2039" UniqueID2="3361" Description="BA Lord Gloves" />
+	<Package GUID="4" ID="24" ItemSequence="4" UniqueID1="2057" UniqueID2="3379" Description="BA Scepter" />
+	<Package GUID="5" ID="24" ItemSequence="5" UniqueID1="2058" UniqueID2="3380" Description="BA Lord Shield" />
+	<Package GUID="6" ID="24" ItemSequence="6" UniqueID1="2131" UniqueID2="3455" Description="Cape of Emperor" />
+	<Package GUID="0" ID="25" ItemSequence="0" UniqueID1="2042" UniqueID2="3364" Description="BA Summoner Helm" />
+	<Package GUID="1" ID="25" ItemSequence="1" UniqueID1="2043" UniqueID2="3365" Description="BA Summoner Armor" />
+	<Package GUID="2" ID="25" ItemSequence="2" UniqueID1="2044" UniqueID2="3366" Description="BA Summoner Pants" />
+	<Package GUID="3" ID="25" ItemSequence="3" UniqueID1="2045" UniqueID2="3367" Description="BA Summoner Gloves" />
+	<Package GUID="4" ID="25" ItemSequence="4" UniqueID1="2059" UniqueID2="3381" Description="BA Stick" />
+	<Package GUID="5" ID="25" ItemSequence="5" UniqueID1="2060" UniqueID2="3382" Description="BA Book" />
+	<Package GUID="6" ID="25" ItemSequence="6" UniqueID1="2132" UniqueID2="3456" Description="Wings of Dimension" />
+	<Package GUID="0" ID="26" ItemSequence="0" UniqueID1="2047" UniqueID2="3369" Description="BA Fighter Helm" />
+	<Package GUID="1" ID="26" ItemSequence="1" UniqueID1="2048" UniqueID2="3370" Description="BA Fighter Armor" />
+	<Package GUID="2" ID="26" ItemSequence="2" UniqueID1="2049" UniqueID2="3371" Description="BA Fighter Boots" />
+	<Package GUID="3" ID="26" ItemSequence="3" UniqueID1="2050" UniqueID2="3372" Description="BA Fighter Pants" />
+	<Package GUID="4" ID="26" ItemSequence="4" UniqueID1="2061" UniqueID2="3383" Description="BA Claws" />
+	<Package GUID="5" ID="26" ItemSequence="5" UniqueID1="2061" UniqueID2="3383" Description="BA Claws" />
+	<Package GUID="6" ID="26" ItemSequence="6" UniqueID1="2133" UniqueID2="3457" Description="Cape of Overrule" />
+	<Package GUID="0" ID="27" ItemSequence="0" UniqueID1="2062" UniqueID2="3384" Description="BA Lance" />
+	<Package GUID="1" ID="27" ItemSequence="1" UniqueID1="2063" UniqueID2="3385" Description="BA Lancer Shield" />
+	<Package GUID="2" ID="27" ItemSequence="2" UniqueID1="2066" UniqueID2="3388" Description="BA Lancer Helm" />
+	<Package GUID="3" ID="27" ItemSequence="3" UniqueID1="2067" UniqueID2="3389" Description="BA Lancer Armor" />
+	<Package GUID="4" ID="27" ItemSequence="4" UniqueID1="2068" UniqueID2="3390" Description="BA Lancer Pants" />
+	<Package GUID="5" ID="27" ItemSequence="5" UniqueID1="2069" UniqueID2="3391" Description="BA Lancer Gloves" />
+	<Package GUID="6" ID="27" ItemSequence="6" UniqueID1="2134" UniqueID2="3458" Description="Cloak of Transcendence" />
+	<Package GUID="0" ID="28" ItemSequence="0" UniqueID1="2064" UniqueID2="3386" Description="BA Rune Wizard Shield" />
+	<Package GUID="1" ID="28" ItemSequence="1" UniqueID1="2065" UniqueID2="3387" Description="BA Runic Mace" />
+	<Package GUID="2" ID="28" ItemSequence="2" UniqueID1="2070" UniqueID2="3392" Description="BA Runist Helm" />
+	<Package GUID="3" ID="28" ItemSequence="3" UniqueID1="2071" UniqueID2="3393" Description="BA Runist Armor" />
+	<Package GUID="4" ID="28" ItemSequence="4" UniqueID1="2072" UniqueID2="3394" Description="BA Runist Pants" />
+	<Package GUID="5" ID="28" ItemSequence="5" UniqueID1="2073" UniqueID2="3395" Description="BA Runist Glove" />
+	<Package GUID="6" ID="28" ItemSequence="6" UniqueID1="2135" UniqueID2="3459" Description="Wings of Disillusion" />
+	<Package GUID="0" ID="29" ItemSequence="0" UniqueID1="2076" UniqueID2="3400" Description="BA Short Sword" />
+	<Package GUID="1" ID="29" ItemSequence="1" UniqueID1="2076" UniqueID2="3400" Description="BA Short Sword" />
+	<Package GUID="2" ID="29" ItemSequence="2" UniqueID1="2087" UniqueID2="3411" Description="BA Slayer Helm" />
+	<Package GUID="3" ID="29" ItemSequence="3" UniqueID1="2096" UniqueID2="3420" Description="BA Slayer Armor" />
+	<Package GUID="4" ID="29" ItemSequence="4" UniqueID1="2106" UniqueID2="3430" Description="BA Slayer Pants" />
+	<Package GUID="5" ID="29" ItemSequence="5" UniqueID1="2116" UniqueID2="3440" Description="BA Slayer Gloves" />
+	<Package GUID="6" ID="29" ItemSequence="6" UniqueID1="2136" UniqueID2="3460" Description="Wings of Silence" />
+	<Package GUID="0" ID="30" ItemSequence="0" UniqueID1="2077" UniqueID2="3401" Description="BA Magic Gun" />
+	<Package GUID="1" ID="30" ItemSequence="1" UniqueID1="2077" UniqueID2="3401" Description="BA Magic Gun" />
+	<Package GUID="2" ID="30" ItemSequence="2" UniqueID1="2088" UniqueID2="3412" Description="BA Gun Crusher Helmet" />
+	<Package GUID="3" ID="30" ItemSequence="3" UniqueID1="2097" UniqueID2="3421" Description="BA Gun Crusher Armor" />
+	<Package GUID="4" ID="30" ItemSequence="4" UniqueID1="2107" UniqueID2="3431" Description="BA Gun Crusher Pants" />
+	<Package GUID="5" ID="30" ItemSequence="5" UniqueID1="2117" UniqueID2="3441" Description="BA Gun Crusher Boots" />
+	<Package GUID="6" ID="30" ItemSequence="6" UniqueID1="2137" UniqueID2="3461" Description="Wings of Hit" />
+	<Package GUID="0" ID="31" ItemSequence="0" UniqueID1="2078" UniqueID2="3402" Description="BA Magic Book" />
+	<Package GUID="1" ID="31" ItemSequence="1" UniqueID1="2052" UniqueID2="3374" Description="BA Staff" />
+	<Package GUID="2" ID="31" ItemSequence="2" UniqueID1="2089" UniqueID2="3413" Description="BA Light Wizard Helmet" />
+	<Package GUID="3" ID="31" ItemSequence="3" UniqueID1="2098" UniqueID2="3422" Description="BA Light Wizard Armor" />
+	<Package GUID="4" ID="31" ItemSequence="4" UniqueID1="2108" UniqueID2="3432" Description="BA Light Wizard Pants" />
+	<Package GUID="5" ID="31" ItemSequence="5" UniqueID1="2118" UniqueID2="3442" Description="BA Light Wizard Gloves" />
+	<Package GUID="6" ID="31" ItemSequence="6" UniqueID1="2138" UniqueID2="3462" Description="Cloak of Brilliance" />
+	<Package GUID="0" ID="32" ItemSequence="0" UniqueID1="2079" UniqueID2="3403" Description="BA Orb" />
+	<Package GUID="1" ID="32" ItemSequence="1" UniqueID1="2090" UniqueID2="3414" Description="BA Mage Helmet" />
+	<Package GUID="2" ID="32" ItemSequence="2" UniqueID1="2099" UniqueID2="3423" Description="BA Mage Armor" />
+	<Package GUID="3" ID="32" ItemSequence="3" UniqueID1="2109" UniqueID2="3433" Description="BA Mage Pants" />
+	<Package GUID="4" ID="32" ItemSequence="4" UniqueID1="2119" UniqueID2="3443" Description="BA Mage Gloves" />
+	<Package GUID="5" ID="32" ItemSequence="5" UniqueID1="2139" UniqueID2="3463" Description="Eternal Wings" />
+	<Package GUID="0" ID="33" ItemSequence="0" UniqueID1="2080" UniqueID2="3404" Description="BA Blade" />
+	<Package GUID="1" ID="33" ItemSequence="1" UniqueID1="2091" UniqueID2="3415" Description="BA Illusion Knight Helmet" />
+	<Package GUID="2" ID="33" ItemSequence="2" UniqueID1="2100" UniqueID2="3424" Description="BA Illusion Knight Armor" />
+	<Package GUID="3" ID="33" ItemSequence="3" UniqueID1="2110" UniqueID2="3434" Description="BA Illusion Knight Pants" />
+	<Package GUID="4" ID="33" ItemSequence="4" UniqueID1="2120" UniqueID2="3444" Description="BA Illusion Knight Gloves" />
+	<Package GUID="5" ID="33" ItemSequence="5" UniqueID1="2140" UniqueID2="3464" Description="Cloak of Death" />
+	<Package GUID="0" ID="34" ItemSequence="0" UniqueID1="2081" UniqueID2="3405" Description="BA Wand" />
+	<Package GUID="1" ID="34" ItemSequence="1" UniqueID1="2082" UniqueID2="3406" Description="BA Elixir" />
+	<Package GUID="2" ID="34" ItemSequence="2" UniqueID1="2092" UniqueID2="3416" Description="BA Alchemist Helmet" />
+	<Package GUID="3" ID="34" ItemSequence="3" UniqueID1="2101" UniqueID2="3425" Description="BA Alchemist Armor" />
+	<Package GUID="4" ID="34" ItemSequence="4" UniqueID1="2111" UniqueID2="3435" Description="BA Alchemist Pants" />
+	<Package GUID="5" ID="34" ItemSequence="5" UniqueID1="2121" UniqueID2="3445" Description="BA Alchemist Gloves" />
+	<Package GUID="6" ID="34" ItemSequence="6" UniqueID1="2141" UniqueID2="3465" Description="Wings of Guardian" />
+	<Package GUID="0" ID="35" ItemSequence="0" UniqueID1="2083" UniqueID2="3407" Description="BA Fairy Shield" />
+	<Package GUID="1" ID="35" ItemSequence="1" UniqueID1="2093" UniqueID2="3417" Description="BA Elf Helm (B)" />
+	<Package GUID="2" ID="35" ItemSequence="2" UniqueID1="2102" UniqueID2="3426" Description="BA Elf Armor (B)" />
+	<Package GUID="3" ID="35" ItemSequence="3" UniqueID1="2112" UniqueID2="3436" Description="BA Elf Pants (B)" />
+	<Package GUID="4" ID="35" ItemSequence="4" UniqueID1="2122" UniqueID2="3446" Description="BA Elf Gloves (B)" />
+	<Package GUID="5" ID="35" ItemSequence="5" UniqueID1="2129" UniqueID2="3453" Description="Wings of Illusion" />
+	<Package GUID="0" ID="36" ItemSequence="0" UniqueID1="2052" UniqueID2="3374" Description="BA Staff" />
+	<Package GUID="1" ID="36" ItemSequence="1" UniqueID1="2052" UniqueID2="3374" Description="BA Staff" />
+	<Package GUID="2" ID="36" ItemSequence="2" UniqueID1="2103" UniqueID2="3427" Description="BA Magic Armor (B)" />
+	<Package GUID="3" ID="36" ItemSequence="3" UniqueID1="2113" UniqueID2="3437" Description="BA Magic Pants (B)" />
+	<Package GUID="4" ID="36" ItemSequence="4" UniqueID1="2123" UniqueID2="3447" Description="BA Magic Gloves (B)" />
+	<Package GUID="5" ID="36" ItemSequence="5" UniqueID1="2124" UniqueID2="3448" Description="BA Magic Boots (B)" />
+	<Package GUID="6" ID="36" ItemSequence="6" UniqueID1="2130" UniqueID2="3454" Description="Wings of Ruin" />
+	<Package GUID="0" ID="37" ItemSequence="0" UniqueID1="2084" UniqueID2="3408" Description="BA Shield" />
+	<Package GUID="1" ID="37" ItemSequence="1" UniqueID1="2051" UniqueID2="3373" Description="BA Sword" />
+	<Package GUID="2" ID="37" ItemSequence="2" UniqueID1="2094" UniqueID2="3418" Description="BA Knight Helm (Conviction)" />
+	<Package GUID="3" ID="37" ItemSequence="3" UniqueID1="2104" UniqueID2="3428" Description="BA Knight Armor (Conviction)" />
+	<Package GUID="4" ID="37" ItemSequence="4" UniqueID1="2114" UniqueID2="3438" Description="BA Knight Pants (Conviction)" />
+	<Package GUID="5" ID="37" ItemSequence="5" UniqueID1="2125" UniqueID2="3449" Description="BA Knight Boots (Conviction)" />
+	<Package GUID="6" ID="37" ItemSequence="6" UniqueID1="2127" UniqueID2="3451" Description="Wings of Storm" />
+</CashItemPackage>

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+// ============================================================
+// == INTERNATIONAL GAMING CENTER NETWORK
+// == www.igcn.mu
+// == (C) 2010-2024 IGC-Network (R)
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// == File is a part of IGCN Group MuOnline Server files.
+// ============================================================
+//
+// ### ExpSystem ###
+//	CalcType: Defines formula ID used in ExpCalc.lua -> ExpSystemCalc function, default configuration offers below formulas:
+//		0: Static exp only
+//				~ StaticExp + (EventExp + VipExp + BonusEvent + MapBonusExp)
+//		1: Static plus Dynamic
+//				~ StaticExp + DynamicExp + (EventExp + VipExp + BonusEvent + MapBonusExp)
+//		2: Static multiply Dynamic plus Bonus
+//				~ StaticExp * DynamicExp + (EventExp + VipExp + BonusEvent + MapBonusExp)
+//		3: Dynamic only
+//				~ DynamicExp + (EventExp + VipExp + BonusEvent + MapBonusExp)
+//		4: (Static plus Bonus) multiply Dynamic
+//				~ (StaticExp + EventExp + VipExp + BonusEvent + MapBonusExp) * DynamicExp
+//		5: (Static plus Dynamic) multiply VipExp
+//				~ (StaticExp + DynamicExp + EventExp + BonusEvent + MapBonusExp) * VipExp
+//
+//	PartyExpGainRange: Max distance (tiles) from other party member to apply party exp
+//	DebugMode: If enables will display a log in Game Server, 0/1
+//
+// ### ExpSystem::StaticExp ###
+//	Normal: The normal experience multiplier, float 
+//	Master: The master experience multiplier, third character class of minimum level of "MaxNormalLevel", float
+//	Majestic: The majestic experience multiplier, fourth character class of minimum level of "MaxMasterLevelFor3rdClass", float
+//	Event: The event experience bonus, float
+//	Quest: The quest experience multiplier (quests received from Quests System), float
+//	OffLevel: Multiplier of StaticExp for players in Offline Levelling mode, if not owning the plugin it is always 1.0
+//
+// ### ExpSystem::PartyRegAddExp ###
+//	One: Party AddExp value for regular party of one member
+//	Two: Party AddExp value for regular party of two members
+//	Three: Party AddExp value for regular party of three members
+//	Four: Party AddExp value for regular party of four members
+//	Five: Party AddExp value for regular party of five members
+//
+// ### ExpSystem::PartySetAddExp ###
+//	Two: Party AddExp value for special party of two members
+//	Three: Party AddExp value for special party of three members
+//	Four: Party AddExp value for special party of four members
+//	Five: Party AddExp value for special party of five members
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//~~ SetParty exp is applied when party is built from at least 3 different classes
+//~~ PartyRegAddExp and PartySetAddExp are used in Exp section of ExpManager.xml
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//
+// ### ExpSystem::DynamicExpRangeList ###
+//	MinGrandReset: Start range of grand resets count to apply the rule, optional or -1 if not applies
+//	MaxGrandReset: End range of grand resets count to apply the rule, optional or -1 if not applies
+//	MinReset: Start range of resets count to apply the rule
+//	MaxReset: End range of resets count to apply the rule
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//~~ If MAX used as value then max grand/reset attribute is set to MaxReset value from Common.ini
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//	MinLevel: Start range of level to apply the rule
+//	MaxLevel: End range of level to apply the rule
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//~~ If MAX used as value then max level attribute is set to sum of MaxNormalLevel and MaxMasterLevel from Common.ini
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//	NormalExp: Regular experience multiplier
+//	MasterExp: Master experience multiplier
+//	MajesticExp: Majestic experience multiplier
+//	OffLevelExp: Multiplier of DynamicExp for players in Offline Levelling mode, if not owning the plugin it is always 1.0
+//
+// ### PremiumExpRangeList::Range ### ~ exp percentage value added upon use of premium items
+//	MinExpPercent: Minimum range value of exp gain percentage 
+//	MaxExpPercent: Maximum range value of exp gain percentage 
+//	PremiumExpBonus: Percentage value of bonus to added
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//~~ If MAX used as value then MinExpPercent is set to "infinite" (2147483647)
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Formula: GainExp = BaseExp * PremiumItemIncreaseValue / 100 * (100 + PremiumExpBonus) / 100
+// e.g. with Panda Pet, GainExp = 3380 * 150 / 100 * (100 + 10) / 100 = 55717
+// GainExp value is exp after all other bonuses explained in CalcType part above
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//
+// STRICTLY NO COMMENTS INSIDE TAGS
+//
+-->
+
+<ExpSystem CalcType="1" PartyExpGainRange="9" DebugMode="0">
+	<StaticExp Normal="1.0" Master="1.0" Majestic="1.0" Event="0.0" Quest="1.0" OffLevel="1.0" />
+	<PartyRegAddExp One="1.0" Two="2.0" Three="3.0" Four="5.0" Five="6.0" />
+	<PartySetAddExp Two="2.0" Three="3.5" Four="4.4" Five="5.5" />
+	
+	<DynamicExpRangeList> <!-- First rule that matches player requirements will be applied, therefore order of entries matters -->
+		<Range MinReset="0" MaxReset="1" MinLevel="1" MaxLevel="100" NormalExp="2000.0" MasterExp="2000.0" MajesticExp="4000.0" OffLevelExp="1.0"/>
+		<Range MinReset="0" MaxReset="1" MinLevel="101" MaxLevel="400" NormalExp="2000.0" MasterExp="2000.0" MajesticExp="4000.0" OffLevelExp="1.0"/>
+		<Range MinReset="0" MaxReset="1" MinLevel="401" MaxLevel="800" NormalExp="3000.0" MasterExp="3000.0" MajesticExp="6000.0" OffLevelExp="1.0"/>
+		<Range MinReset="0" MaxReset="1" MinLevel="801" MaxLevel="1200" NormalExp="3000.0" MasterExp="3000.0" MajesticExp="6000.0" OffLevelExp="1.0"/>
+		<Range MinReset="0" MaxReset="1" MinLevel="1201" MaxLevel="1500" NormalExp="3000.0" MasterExp="3000.0" MajesticExp="6000.0" OffLevelExp="1.0"/>
+		<Range MinReset="0" MaxReset="1" MinLevel="1501" MaxLevel="1600" NormalExp="3000.0" MasterExp="3000.0" MajesticExp="4000.0" OffLevelExp="1.0"/>
+		<Range MinReset="0" MaxReset="1" MinLevel="1601" MaxLevel="1650" NormalExp="2000.0" MasterExp="2000.0" MajesticExp="2500.0" OffLevelExp="1.0"/>
+		<Range MinReset="0" MaxReset="1" MinLevel="1651" MaxLevel="1689" NormalExp="2000.0" MasterExp="2000.0" MajesticExp="1500.0" OffLevelExp="1.0"/>		
+		<Range MinReset="0" MaxReset="1" MinLevel="1690" MaxLevel="1730" NormalExp="2000.0" MasterExp="2000.0" MajesticExp="1000.0" OffLevelExp="1.0"/>	
+		<Range MinReset="0" MaxReset="1" MinLevel="1731" MaxLevel="1750" NormalExp="2000.0" MasterExp="2000.0" MajesticExp="500.0" OffLevelExp="1.0"/>		
+	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+		<Range MinReset="2" MaxReset="100" MinLevel="1" MaxLevel="100" NormalExp="2000.0" MasterExp="2000.0" MajesticExp="4000.0" OffLevelExp="1.0"/>
+		<Range MinReset="2" MaxReset="100" MinLevel="101" MaxLevel="400" NormalExp="2000.0" MasterExp="2000.0" MajesticExp="4000.0" OffLevelExp="1.0"/>
+		<Range MinReset="2" MaxReset="100" MinLevel="401" MaxLevel="800" NormalExp="3000.0" MasterExp="3000.0" MajesticExp="6000.0" OffLevelExp="1.0"/>
+		<Range MinReset="2" MaxReset="100" MinLevel="801" MaxLevel="1200" NormalExp="3000.0" MasterExp="3000.0" MajesticExp="6000.0" OffLevelExp="1.0"/>
+		<Range MinReset="2" MaxReset="100" MinLevel="1201" MaxLevel="1500" NormalExp="3000.0" MasterExp="3000.0" MajesticExp="6000.0" OffLevelExp="1.0"/>
+		<Range MinReset="2" MaxReset="100" MinLevel="1501" MaxLevel="1600" NormalExp="2000.0" MasterExp="3000.0" MajesticExp="4000.0" OffLevelExp="1.0"/>
+		<Range MinReset="2" MaxReset="100" MinLevel="1601" MaxLevel="1650" NormalExp="2000.0" MasterExp="2000.0" MajesticExp="2500.0" OffLevelExp="1.0"/>
+		<Range MinReset="2" MaxReset="100" MinLevel="1651" MaxLevel="1689" NormalExp="2000.0" MasterExp="2000.0" MajesticExp="1500.0" OffLevelExp="1.0"/>		
+		<Range MinReset="2" MaxReset="100" MinLevel="1690" MaxLevel="1730" NormalExp="2000.0" MasterExp="2000.0" MajesticExp="1000.0" OffLevelExp="1.0"/>	
+		<Range MinReset="2" MaxReset="100" MinLevel="1731" MaxLevel="1750" NormalExp="2000.0" MasterExp="2000.0" MajesticExp="500.0" OffLevelExp="1.0"/>		
+
+	</DynamicExpRangeList>
+	
+	<PremiumExpRangeList>
+		<Range MinExpPercent="0" MaxExpPercent="50" PremiumExpBonus="10" />
+		<Range MinExpPercent="51" MaxExpPercent="100" PremiumExpBonus="20" />
+		<Range MinExpPercent="101" MaxExpPercent="150" PremiumExpBonus="30" />
+		<Range MinExpPercent="151" MaxExpPercent="200" PremiumExpBonus="40" />
+		<Range MinExpPercent="201" MaxExpPercent="250" PremiumExpBonus="50" />
+		<Range MinExpPercent="251" MaxExpPercent="300" PremiumExpBonus="60" />
+		<Range MinExpPercent="301" MaxExpPercent="350" PremiumExpBonus="70" />
+		<Range MinExpPercent="351" MaxExpPercent="400" PremiumExpBonus="80" />
+		<Range MinExpPercent="401" MaxExpPercent="450" PremiumExpBonus="90" />
+		<Range MinExpPercent="451" MaxExpPercent="500" PremiumExpBonus="100" />
+		<Range MinExpPercent="501" MaxExpPercent="550" PremiumExpBonus="110" />
+		<Range MinExpPercent="551" MaxExpPercent="600" PremiumExpBonus="120" />
+		<Range MinExpPercent="601" MaxExpPercent="650" PremiumExpBonus="130" />
+		<Range MinExpPercent="651" MaxExpPercent="700" PremiumExpBonus="140" />
+		<Range MinExpPercent="701" MaxExpPercent="MAX" PremiumExpBonus="150" />
+	</PremiumExpRangeList>
+</ExpSystem>
