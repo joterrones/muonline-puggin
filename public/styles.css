@@ -961,7 +961,9 @@ body {
 .maps-tooltip {
   position: absolute;
   z-index: 5;
-  max-width: 220px;
+  max-width: 260px;
+  max-height: 220px;
+  overflow: auto;
   padding: 0.45rem 0.6rem;
   background: rgba(15, 23, 42, 0.92);
   color: #fff;
@@ -969,11 +971,21 @@ body {
   font-size: 0.75rem;
   pointer-events: none;
   box-shadow: var(--p-shadow);
+  white-space: normal;
 }
 
 .maps-tooltip strong {
   display: block;
-  margin-bottom: 0.15rem;
+  margin-bottom: 0.25rem;
+}
+
+.maps-tooltip div {
+  line-height: 1.35;
+}
+
+.maps-zones-hint {
+  margin: -0.35rem 0 0.75rem;
+  font-size: 0.82rem;
 }
 
 .maps-spots {

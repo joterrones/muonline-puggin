@@ -14,8 +14,8 @@
   let mapSize = 256;
   /** @type {any | null} */
   let selected = null;
-  /** @type {number | null} */
-  let selectedSpotId = null;
+  /** @type {string | null} */
+  let selectedRegionId = null;
 
   function setStatus(text) {
     statusEl.textContent = text;
@@ -27,6 +27,20 @@
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;");
+  }
+
+  function regionCoords(region) {
+    if (region.point) return `(${region.x1}, ${region.y1})`;
+    return `(${region.x1},${region.y1}) → (${region.x2},${region.y2})`;
+  }
+
+  function regionMonsterLines(region) {
+    return (region.monsters || [])
+      .map(
+        (m) =>
+          `${m.name} ×${m.count}${m.elite ? " (Elite)" : ""}`
+      )
+      .join("\n");
   }
 
   function filteredMaps() {
@@ -55,7 +69,7 @@
           : "";
         return `<button type="button" class="map-list-item${active}" data-map="${m.number}">
           <span class="map-list-name">${escapeHtml(m.name)}</span>
-          <span class="map-list-meta">#${m.number} · ${m.monsterCount} mobs · ${m.spotCount} spots ${elite}</span>
+          <span class="map-list-meta">#${m.number} · ${m.monsterCount} mobs · ${m.regionCount || m.spotCount} zonas ${elite}</span>
         </button>`;
       })
       .join("");
@@ -72,38 +86,41 @@
           <h2>${escapeHtml(map.name)}</h2>
           <p class="muted">Mapa #${map.number}${map.file ? ` · ${escapeHtml(map.file)}` : ""}</p>
         </div>
-        <div class="maps-stat"><strong>${map.spotCount}</strong><span>Spots</span></div>
+        <div class="maps-stat"><strong>${map.regionCount || 0}</strong><span>Zonas</span></div>
         <div class="maps-stat"><strong>${map.monsterCount}</strong><span>Monstruos</span></div>
         <div class="maps-stat maps-stat-elite"><strong>${map.eliteSpots}</strong><span>Spots elite</span></div>
         <div class="maps-stat maps-stat-elite"><strong>${map.eliteMonsters}</strong><span>Elites</span></div>
       </div>`;
   }
 
-  function renderSpots(map) {
-    if (!map.spots.length) {
-      spotsEl.innerHTML = '<p class="empty">Sin spots de monstruos</p>';
+  function renderRegions(map) {
+    const regions = map.regions || [];
+    if (!regions.length) {
+      spotsEl.innerHTML = '<p class="empty">Sin zonas de monstruos</p>';
       return;
     }
-    spotsEl.innerHTML = map.spots
-      .map((spot) => {
-        const active = selectedSpotId === spot.id ? " active" : "";
-        const eliteBadge = spot.hasElite
+    spotsEl.innerHTML = regions
+      .map((region) => {
+        const active = selectedRegionId === region.id ? " active" : "";
+        const eliteBadge = region.hasElite
           ? '<span class="type-badge badge-elite">Elite</span>'
           : '<span class="type-badge badge-normal">Normal</span>';
-        const monsters = spot.spawns
+        const monsters = region.monsters
           .map(
-            (s) =>
-              `<li class="${s.elite ? "is-elite" : ""}">${escapeHtml(s.name)} ×${s.count}${
-                s.elite ? " · Elite" : ""
+            (m) =>
+              `<li class="${m.elite ? "is-elite" : ""}">${escapeHtml(m.name)} ×${m.count}${
+                m.elite ? " · Elite" : ""
               }</li>`
           )
           .join("");
-        return `<button type="button" class="spot-card${active}" data-spot="${spot.id}">
+        return `<button type="button" class="spot-card${active}" data-region="${escapeHtml(
+          region.id
+        )}">
           <div class="spot-card-head">
-            <strong>${escapeHtml(spot.description)}</strong>
+            <strong>${region.monsterKinds} tipo(s) · total ${region.totalCount}</strong>
             ${eliteBadge}
           </div>
-          <div class="spot-card-meta">${spot.monsterCount} monstruos · tipo ${spot.type}</div>
+          <div class="spot-card-meta">${escapeHtml(regionCoords(region))}</div>
           <ul class="spot-monster-list">${monsters}</ul>
         </button>`;
       })
@@ -122,7 +139,6 @@
     bg.setAttribute("class", "map-bg");
     svg.appendChild(bg);
 
-    // grid
     for (let i = 0; i <= mapSize; i += 32) {
       const v = document.createElementNS(NS, "line");
       v.setAttribute("x1", String(i));
@@ -140,70 +156,71 @@
       svg.appendChild(h);
     }
 
-    map.spots.forEach((spot) => {
+    const regions = map.regions || [];
+    regions.forEach((region) => {
       const dimmed =
-        selectedSpotId != null && selectedSpotId !== spot.id ? " dimmed" : "";
-      spot.spawns.forEach((spawn, idx) => {
-        const eliteClass = spawn.elite ? " elite" : " normal";
-        const highlight =
-          selectedSpotId === spot.id ? " spot-active" : "";
-        const title = `${spawn.name} ×${spawn.count}${spawn.elite ? " (Elite)" : ""}`;
+        selectedRegionId != null && selectedRegionId !== region.id
+          ? " dimmed"
+          : "";
+      const eliteClass = region.hasElite ? " elite" : " normal";
+      const highlight =
+        selectedRegionId === region.id ? " spot-active" : "";
+      const label = `${region.monsterKinds} tipos · ${region.totalCount} mobs`;
+      const detail = `${regionCoords(region)}\n${regionMonsterLines(region)}`;
 
-        if (spawn.point) {
-          const r = Math.max(1.8, Math.min(6, 1.5 + Math.sqrt(spawn.count)));
-          const c = document.createElementNS(NS, "circle");
-          c.setAttribute("cx", String(spawn.cx));
-          c.setAttribute("cy", String(svgY(spawn.cy)));
-          c.setAttribute("r", String(r));
-          c.setAttribute(
-            "class",
-            `map-spawn map-spawn-point${eliteClass}${highlight}${dimmed}`
-          );
-          c.dataset.spot = String(spot.id);
-          c.dataset.label = title;
-          c.dataset.detail = `${spot.description} · (${spawn.x1}, ${spawn.y1})`;
-          svg.appendChild(c);
-        } else {
-          const w = Math.max(1, spawn.x2 - spawn.x1);
-          const h = Math.max(1, spawn.y2 - spawn.y1);
-          const rect = document.createElementNS(NS, "rect");
-          rect.setAttribute("x", String(spawn.x1));
-          rect.setAttribute("y", String(svgY(spawn.y2)));
-          rect.setAttribute("width", String(w));
-          rect.setAttribute("height", String(h));
-          rect.setAttribute(
-            "class",
-            `map-spawn map-spawn-area${eliteClass}${highlight}${dimmed}`
-          );
-          rect.dataset.spot = String(spot.id);
-          rect.dataset.label = title;
-          rect.dataset.detail = `${spot.description} · (${spawn.x1},${spawn.y1})-(${spawn.x2},${spawn.y2}) · ${spawn.count}`;
-          svg.appendChild(rect);
+      if (region.point) {
+        const r = Math.max(
+          2,
+          Math.min(7, 1.6 + Math.sqrt(region.totalCount))
+        );
+        const c = document.createElementNS(NS, "circle");
+        c.setAttribute("cx", String(region.cx));
+        c.setAttribute("cy", String(svgY(region.cy)));
+        c.setAttribute("r", String(r));
+        c.setAttribute(
+          "class",
+          `map-spawn map-spawn-point${eliteClass}${highlight}${dimmed}`
+        );
+        c.dataset.region = region.id;
+        c.dataset.label = label;
+        c.dataset.detail = detail;
+        svg.appendChild(c);
+      } else {
+        const w = Math.max(1, region.x2 - region.x1);
+        const h = Math.max(1, region.y2 - region.y1);
+        const rect = document.createElementNS(NS, "rect");
+        rect.setAttribute("x", String(region.x1));
+        rect.setAttribute("y", String(svgY(region.y2)));
+        rect.setAttribute("width", String(w));
+        rect.setAttribute("height", String(h));
+        rect.setAttribute(
+          "class",
+          `map-spawn map-spawn-area${eliteClass}${highlight}${dimmed}`
+        );
+        rect.dataset.region = region.id;
+        rect.dataset.label = label;
+        rect.dataset.detail = detail;
+        svg.appendChild(rect);
+      }
 
-          if (spawn.count >= 5 || spawn.elite) {
-            const label = document.createElementNS(NS, "text");
-            label.setAttribute("x", String(spawn.cx));
-            label.setAttribute("y", String(svgY(spawn.cy)));
-            label.setAttribute("text-anchor", "middle");
-            label.setAttribute("dominant-baseline", "middle");
-            label.setAttribute(
-              "class",
-              `map-spawn-label${dimmed}${spawn.elite ? " elite" : ""}`
-            );
-            label.textContent = String(spawn.count);
-            label.dataset.spot = String(spot.id);
-            label.style.pointerEvents = "none";
-            svg.appendChild(label);
-          }
-        }
-        void idx;
-      });
+      const text = document.createElementNS(NS, "text");
+      text.setAttribute("x", String(region.cx));
+      text.setAttribute("y", String(svgY(region.cy)));
+      text.setAttribute("text-anchor", "middle");
+      text.setAttribute("dominant-baseline", "middle");
+      text.setAttribute(
+        "class",
+        `map-spawn-label${dimmed}${region.hasElite ? " elite" : ""}`
+      );
+      text.textContent = String(region.totalCount);
+      text.style.pointerEvents = "none";
+      svg.appendChild(text);
     });
   }
 
   function selectMap(number) {
     selected = maps.find((m) => m.number === number) || null;
-    selectedSpotId = null;
+    selectedRegionId = null;
     renderList();
     if (!selected) {
       summaryEl.innerHTML = '<p class="empty">Selecciona un mapa</p>';
@@ -212,29 +229,34 @@
       return;
     }
     renderSummary(selected);
-    renderSpots(selected);
+    renderRegions(selected);
     renderSvg(selected);
   }
 
-  function selectSpot(spotId) {
-    selectedSpotId = spotId;
+  function selectRegion(regionId) {
+    selectedRegionId = regionId;
     if (!selected) return;
-    renderSpots(selected);
+    renderRegions(selected);
     renderSvg(selected);
-    const card = spotsEl.querySelector(`[data-spot="${spotId}"]`);
+    const card = spotsEl.querySelector(
+      `[data-region="${CSS.escape(regionId)}"]`
+    );
     if (card) card.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }
 
   function showTooltip(evt, label, detail) {
     tooltip.hidden = false;
-    tooltip.innerHTML = `<strong>${escapeHtml(label)}</strong><div>${escapeHtml(
-      detail || ""
-    )}</div>`;
+    const lines = String(detail || "")
+      .split("\n")
+      .filter(Boolean)
+      .map((line) => `<div>${escapeHtml(line)}</div>`)
+      .join("");
+    tooltip.innerHTML = `<strong>${escapeHtml(label)}</strong>${lines}`;
     const wrap = tooltip.parentElement.getBoundingClientRect();
     const x = evt.clientX - wrap.left + 12;
     const y = evt.clientY - wrap.top + 12;
-    tooltip.style.left = `${Math.min(x, wrap.width - 220)}px`;
-    tooltip.style.top = `${Math.min(y, wrap.height - 60)}px`;
+    tooltip.style.left = `${Math.min(x, wrap.width - 240)}px`;
+    tooltip.style.top = `${Math.min(y, wrap.height - 80)}px`;
   }
 
   function hideTooltip() {
@@ -248,10 +270,10 @@
   });
 
   spotsEl.addEventListener("click", (e) => {
-    const btn = e.target.closest("[data-spot]");
+    const btn = e.target.closest("[data-region]");
     if (!btn) return;
-    const id = Number(btn.dataset.spot);
-    selectSpot(selectedSpotId === id ? null : id);
+    const id = btn.dataset.region;
+    selectRegion(selectedRegionId === id ? null : id);
   });
 
   svg.addEventListener("pointermove", (e) => {
@@ -268,7 +290,8 @@
   svg.addEventListener("click", (e) => {
     const el = e.target.closest(".map-spawn");
     if (!el) return;
-    selectSpot(Number(el.dataset.spot));
+    const id = el.dataset.region;
+    selectRegion(selectedRegionId === id ? null : id);
   });
 
   searchEl.addEventListener("input", renderList);
