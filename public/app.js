@@ -40,11 +40,55 @@ function nameToId(name) {
   return [...bytes].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-async function api(url, options) {
-  const res = await fetch(url, options);
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || "Error de red");
-  return data;
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function api(url, options = {}) {
+  const { retries = 5, retryDelayMs = 1500, onRetry, ...fetchOptions } = options;
+  let lastError;
+
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const res = await fetch(url, fetchOptions);
+      const data = await res.json().catch(() => ({}));
+
+      if (res.ok) return data;
+
+      const retryable = [408, 429, 500, 502, 503, 504].includes(res.status);
+      lastError = new Error(data.error || `Error ${res.status}`);
+      if (!retryable || attempt === retries) throw lastError;
+
+      if (onRetry) onRetry(attempt, retries, res.status);
+      await sleep(retryDelayMs * attempt);
+    } catch (err) {
+      // Errores HTTP retryables ya se manejan arriba; aquí caen fallos de red
+      // o el throw final del último intento.
+      if (attempt === retries) throw err;
+      const msg = String(err && err.message ? err.message : err);
+      const retryable =
+        err instanceof TypeError ||
+        /fetch|network|Failed|Error (408|429|500|502|503|504)/i.test(msg) ||
+        /despert|unavailable|timeout/i.test(msg);
+      if (!retryable) throw err;
+      lastError = err;
+      if (onRetry) onRetry(attempt, retries);
+      await sleep(retryDelayMs * attempt);
+    }
+  }
+
+  throw lastError || new Error("Error de red");
+}
+
+async function wakeServer() {
+  setStatus("Despertando servidor…");
+  await api("/api/health", {
+    retries: 8,
+    retryDelayMs: 2000,
+    onRetry: (attempt, total) => {
+      setStatus(`Servidor despertando… intento ${attempt}/${total}`);
+    },
+  });
 }
 
 function setStatus(msg) {
@@ -255,7 +299,13 @@ async function loadOnline() {
     renderOnline([]);
     return;
   }
-  const data = await api(`/api/online?ids=${encodeURIComponent(ids.join(","))}`);
+  const data = await api(`/api/online?ids=${encodeURIComponent(ids.join(","))}`, {
+    retries: 4,
+    retryDelayMs: 2500,
+    onRetry: (attempt, total) => {
+      setStatus(`Cargando online… reintento ${attempt}/${total}`);
+    },
+  });
   renderOnline(data.guilds || []);
 }
 
@@ -266,7 +316,13 @@ async function loadRanking(force = false) {
     return;
   }
   setStatus("Descargando ranking…");
-  const data = await api("/api/ranking");
+  const data = await api("/api/ranking", {
+    retries: 5,
+    retryDelayMs: 2000,
+    onRetry: (attempt, total) => {
+      setStatus(`Descargando ranking… reintento ${attempt}/${total}`);
+    },
+  });
   state.rankingAll = data.players || [];
   state.levelsByName = new Map(
     Object.entries(data.levelsByName || {}).map(([k, v]) => [k, Number(v)])
@@ -280,7 +336,22 @@ async function refreshAll() {
   refreshBtn.disabled = true;
   setStatus("Actualizando…");
   try {
-    await Promise.all([loadOnline(), loadRanking(true)]);
+    await wakeServer();
+    // Ranking primero (más liviano); online después (Puppeteer)
+    await loadRanking(true);
+    try {
+      setStatus("Cargando online de guilds…");
+      await loadOnline();
+    } catch (onlineErr) {
+      console.error(onlineErr);
+      renderOnline([
+        {
+          guild: "Online",
+          players: [],
+          error: "El online tardó o falló. Prueba Actualizar en unos segundos.",
+        },
+      ]);
+    }
     const now = new Date().toLocaleTimeString("es-PE", {
       hour: "2-digit",
       minute: "2-digit",
@@ -390,11 +461,12 @@ initAccordions();
   setStatus("Cargando…");
   refreshBtn.disabled = true;
   try {
+    await wakeServer();
     await loadGuilds();
     await loadAvailableGuilds();
     await refreshAll();
   } catch (err) {
-    setStatus(err.message);
+    setStatus(err.message || "Error al iniciar");
   } finally {
     refreshBtn.disabled = false;
   }

@@ -12,7 +12,15 @@ const RANKING_TOP = 25000;
 const MIN_RANKING_LEVEL = 1200;
 const CACHE_MS = 60_000;
 const RANKING_CACHE_MS = 5 * 60_000;
-const LAUNCH_ARGS = ["--no-sandbox", "--disable-setuid-sandbox"];
+const LAUNCH_ARGS = [
+  "--no-sandbox",
+  "--disable-setuid-sandbox",
+  "--disable-dev-shm-usage",
+  "--disable-gpu",
+  "--disable-software-rasterizer",
+  "--no-zygote",
+  "--single-process",
+];
 
 const cache = {
   ranking: { data: null, levelsByName: null, at: 0 },
@@ -22,6 +30,10 @@ const cache = {
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
+
+app.get("/api/health", (_req, res) => {
+  res.json({ ok: true, ts: Date.now() });
+});
 
 function guildNameToId(name) {
   return Buffer.from(String(name).trim(), "utf8").toString("hex");
@@ -60,11 +72,12 @@ async function withBrowser(fn) {
   const browser = await puppeteer.launch({
     headless: true,
     args: LAUNCH_ARGS,
+    timeout: 60_000,
   });
   try {
     return await fn(browser);
   } finally {
-    await browser.close();
+    await browser.close().catch(() => {});
   }
 }
 
