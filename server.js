@@ -11,51 +11,62 @@ const RANKING_TOP = 25000;
 const MIN_RANKING_LEVEL = 1200;
 const CACHE_MS = 60_000;
 const RANKING_CACHE_MS = 5 * 60_000;
-const IS_RENDER = process.env.RENDER === "true" || Boolean(process.env.RENDER_EXTERNAL_URL);
+const ROSTER_CACHE_MS = 30 * 60_000;
+const IS_RENDER =
+  process.env.RENDER === "true" || Boolean(process.env.RENDER_EXTERNAL_URL);
+
+/** @type {{ id: string, name: string, enabled: boolean }[]} */
+let memoryGuilds = null;
 
 const cache = {
-  ranking: { data: null, levelsByName: null, at: 0 },
+  ranking: { data: null, levelsByName: null, onlineByName: null, at: 0 },
   availableGuilds: { data: null, at: 0 },
-  online: new Map(),
+  roster: new Map(),
 };
 
-app.use(express.json());
+app.use(express.json({ limit: "1mb" }));
 app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/api/health", (_req, res) => {
-  res.json({ ok: true, ts: Date.now() });
+  res.json({ ok: true, ts: Date.now(), render: IS_RENDER });
 });
 
 function guildNameToId(name) {
   return Buffer.from(String(name).trim(), "utf8").toString("hex");
 }
 
-function readGuilds() {
-  try {
-    const raw = fs.readFileSync(GUILDS_FILE, "utf8");
-    const list = JSON.parse(raw);
-    if (!Array.isArray(list)) return [];
-    return list
-      .map((g) => ({
-        id: String(g.id || guildNameToId(g.name)).toLowerCase(),
-        name: String(g.name || "").trim(),
-        enabled: g.enabled !== false,
-      }))
-      .filter((g) => g.name && g.id);
-  } catch {
-    return [];
-  }
-}
-
-function writeGuilds(list) {
-  const cleaned = list
+function normalizeGuilds(list) {
+  if (!Array.isArray(list)) return [];
+  return list
     .map((g) => ({
       id: String(g.id || guildNameToId(g.name)).toLowerCase(),
       name: String(g.name || "").trim(),
       enabled: g.enabled !== false,
     }))
     .filter((g) => g.name && g.id);
-  fs.writeFileSync(GUILDS_FILE, JSON.stringify(cleaned, null, 2));
+}
+
+function readGuilds() {
+  if (memoryGuilds) return memoryGuilds;
+  try {
+    const raw = fs.readFileSync(GUILDS_FILE, "utf8");
+    memoryGuilds = normalizeGuilds(JSON.parse(raw));
+    return memoryGuilds;
+  } catch {
+    memoryGuilds = [];
+    return memoryGuilds;
+  }
+}
+
+function writeGuilds(list) {
+  const cleaned = normalizeGuilds(list);
+  memoryGuilds = cleaned;
+  try {
+    fs.writeFileSync(GUILDS_FILE, JSON.stringify(cleaned, null, 2));
+  } catch (err) {
+    // En Render el FS suele ser de solo lectura: igual devolvemos OK (memoria + localStorage del cliente).
+    console.warn("No se pudo escribir guilds.json:", err.message);
+  }
   return cleaned;
 }
 
@@ -63,6 +74,9 @@ async function launchBrowser() {
   if (IS_RENDER) {
     const chromium = require("@sparticuz/chromium");
     const puppeteerCore = require("puppeteer-core");
+    if (typeof chromium.setGraphicsMode === "function") {
+      chromium.setGraphicsMode(false);
+    }
     return puppeteerCore.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport || { width: 1280, height: 720 },
@@ -99,6 +113,7 @@ async function fetchRankingPlayers() {
     return {
       players: cache.ranking.data,
       levelsByName: cache.ranking.levelsByName || {},
+      onlineByName: cache.ranking.onlineByName || {},
       cached: true,
     };
   }
@@ -152,20 +167,32 @@ async function fetchRankingPlayers() {
   });
 
   const levelsByName = {};
+  const onlineByName = {};
   for (const p of all) {
-    if (p.name) levelsByName[p.name.toLowerCase()] = p.totalLvl;
+    if (!p.name) continue;
+    const key = p.name.toLowerCase();
+    levelsByName[key] = p.totalLvl;
+    onlineByName[key] = p.online;
   }
 
   const players = all
     .filter((p) => p.totalLvl >= MIN_RANKING_LEVEL)
     .map((p, i) => ({ ...p, place: i + 1 }));
 
-  cache.ranking = { data: players, levelsByName, at: Date.now() };
-  return { players, levelsByName, cached: false };
+  cache.ranking = {
+    data: players,
+    levelsByName,
+    onlineByName,
+    at: Date.now(),
+  };
+  return { players, levelsByName, onlineByName, cached: false };
 }
 
 async function fetchAvailableGuilds() {
-  if (cache.availableGuilds.data && Date.now() - cache.availableGuilds.at < CACHE_MS) {
+  if (
+    cache.availableGuilds.data &&
+    Date.now() - cache.availableGuilds.at < CACHE_MS
+  ) {
     return { guilds: cache.availableGuilds.data, cached: true };
   }
 
@@ -199,14 +226,14 @@ async function fetchAvailableGuilds() {
   return { guilds, cached: false };
 }
 
-async function scrapeGuildOnline(browser, guild) {
+async function scrapeGuildRoster(browser, guild) {
   const cacheKey = guild.id;
-  const hit = cache.online.get(cacheKey);
-  if (hit && Date.now() - hit.at < CACHE_MS) {
+  const hit = cache.roster.get(cacheKey);
+  if (hit && Date.now() - hit.at < ROSTER_CACHE_MS) {
     return {
       id: guild.id,
       guild: guild.name,
-      players: hit.data,
+      members: hit.members,
       error: hit.error,
       cached: true,
     };
@@ -230,7 +257,7 @@ async function scrapeGuildOnline(browser, guild) {
 
     const result = await page.evaluate(() => {
       if (document.body.innerText.includes("Invalid Guild")) {
-        return { invalid: true, players: [] };
+        return { invalid: true, members: [] };
       }
 
       const table = [...document.querySelectorAll("table")].find((t) => {
@@ -242,56 +269,80 @@ async function scrapeGuildOnline(browser, guild) {
         );
       });
 
-      if (!table) return { invalid: false, players: [] };
+      if (!table) return { invalid: false, members: [] };
 
-      const players = [];
+      const members = [];
       table.querySelectorAll("tr").forEach((row, i) => {
         if (i === 0) return;
         const cols = row.querySelectorAll("td");
         if (cols.length < 7) return;
 
-        const status = cols[6].querySelector("img")?.getAttribute("title");
-        if (status !== "Online") return;
+        const status =
+          cols[6].querySelector("img")?.getAttribute("title") || "Offline";
 
-        players.push({
+        members.push({
           nombre:
             cols[1].querySelector("a")?.innerText.trim() ||
             cols[1].innerText.trim(),
           clase: cols[2].innerText.trim(),
           level: cols[4].innerText.trim(),
           position: cols[5].innerText.trim(),
+          status,
         });
       });
 
-      return { invalid: false, players };
+      return { invalid: false, members };
     });
 
     if (result.invalid) {
       const error = `El guild ${guild.name} no existe o cambió de nombre en PeruMU.`;
-      cache.online.set(cacheKey, { data: [], at: Date.now(), error });
+      cache.roster.set(cacheKey, { members: [], at: Date.now(), error });
       return {
         id: guild.id,
         guild: guild.name,
-        players: [],
+        members: [],
         error,
         cached: false,
       };
     }
 
-    cache.online.set(cacheKey, {
-      data: result.players,
+    cache.roster.set(cacheKey, {
+      members: result.members,
       at: Date.now(),
       error: null,
     });
     return {
       id: guild.id,
       guild: guild.name,
-      players: result.players,
+      members: result.members,
       cached: false,
     };
   } finally {
-    await page.close();
+    await page.close().catch(() => {});
   }
+}
+
+function buildOnlineFromRoster(guild, members, onlineByName) {
+  const players = (members || [])
+    .filter((m) => {
+      const key = String(m.nombre || "").toLowerCase();
+      if (onlineByName && Object.prototype.hasOwnProperty.call(onlineByName, key)) {
+        return Boolean(onlineByName[key]);
+      }
+      return m.status === "Online";
+    })
+    .map((m) => ({
+      nombre: m.nombre,
+      clase: m.clase,
+      level: m.level,
+      position: m.position,
+    }));
+
+  return {
+    id: guild.id,
+    guild: guild.name,
+    players,
+  };
 }
 
 app.get("/api/guilds", (_req, res) => {
@@ -303,7 +354,7 @@ app.put("/api/guilds", (req, res) => {
     return res.status(400).json({ error: "Envía { guilds: [...] }" });
   }
   const guilds = writeGuilds(req.body.guilds);
-  res.json({ guilds });
+  res.json({ guilds, persisted: true });
 });
 
 app.get("/api/guilds/available", async (_req, res) => {
@@ -316,13 +367,45 @@ app.get("/api/guilds/available", async (_req, res) => {
   }
 });
 
-app.get("/api/online", async (req, res) => {
+/** Roster completo de un guild (para cachear en cliente). */
+app.post("/api/guild-roster", async (req, res) => {
   try {
-    const configured = readGuilds();
-    const filterIds = String(req.query.ids || "")
-      .split(",")
-      .map((s) => s.trim().toLowerCase())
-      .filter(Boolean);
+    const guild = normalizeGuilds([req.body?.guild || req.body])[0];
+    if (!guild) {
+      return res.status(400).json({ error: "Envía { guild: { id, name } }" });
+    }
+
+    let result;
+    try {
+      result = await withBrowser((browser) => scrapeGuildRoster(browser, guild));
+    } catch (err) {
+      console.error("browser launch roster:", err.message || err);
+      return res.json({
+        id: guild.id,
+        guild: guild.name,
+        members: [],
+        error:
+          "No se pudo abrir el navegador en el servidor. Reintenta en unos segundos.",
+      });
+    }
+
+    res.json(result);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "No se pudo obtener el roster del guild." });
+  }
+});
+
+async function handleOnlineRequest(req, res) {
+  try {
+    const fromClient = normalizeGuilds(req.body?.guilds);
+    const configured = fromClient.length ? fromClient : readGuilds();
+    const filterIds = Array.isArray(req.body?.ids)
+      ? req.body.ids.map((s) => String(s).toLowerCase())
+      : String(req.body?.ids || req.query.ids || "")
+          .split(",")
+          .map((s) => s.trim().toLowerCase())
+          .filter(Boolean);
 
     const selected = configured.filter((g) => {
       if (!g.enabled) return false;
@@ -334,15 +417,32 @@ app.get("/api/online", async (req, res) => {
       return res.json({ guilds: [] });
     }
 
-    // Responder siempre 200: si Chrome falla en Render, devolvemos error por guild
-    // en vez de 500 (que en el free tier se ve como caída del servicio).
-    let guilds;
+    let onlineByName = {};
     try {
-      guilds = await withBrowser(async (browser) => {
-        const results = [];
+      const ranking = await fetchRankingPlayers();
+      onlineByName = ranking.onlineByName || {};
+    } catch (err) {
+      console.error("ranking for online:", err.message || err);
+    }
+
+    const results = [];
+    try {
+      await withBrowser(async (browser) => {
         for (const g of selected) {
           try {
-            results.push(await scrapeGuildOnline(browser, g));
+            const roster = await scrapeGuildRoster(browser, g);
+            if (roster.error) {
+              results.push({
+                id: g.id,
+                guild: g.name,
+                players: [],
+                error: roster.error,
+              });
+            } else {
+              results.push(
+                buildOnlineFromRoster(g, roster.members, onlineByName)
+              );
+            }
           } catch (err) {
             console.error(`online ${g.name}:`, err.message || err);
             results.push({
@@ -353,32 +453,38 @@ app.get("/api/online", async (req, res) => {
             });
           }
         }
-        return results;
       });
     } catch (err) {
       console.error("browser launch:", err.message || err);
-      guilds = selected.map((g) => ({
-        id: g.id,
-        guild: g.name,
-        players: [],
-        error:
-          "El servidor no pudo abrir el navegador (típico en el primer arranque). Pulsa Actualizar.",
-      }));
+      for (const g of selected) {
+        results.push({
+          id: g.id,
+          guild: g.name,
+          players: [],
+          error:
+            "El servidor no pudo abrir el navegador. Pulsa Actualizar en unos segundos.",
+        });
+      }
     }
 
-    res.json({ guilds });
+    res.json({ guilds: results });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Error al cargar online de guilds." });
   }
-});
+}
 
-app.get("/api/ranking", async (req, res) => {
+app.post("/api/online", handleOnlineRequest);
+app.get("/api/online", handleOnlineRequest);
+
+app.get("/api/ranking", async (_req, res) => {
   try {
-    const { players, levelsByName, cached } = await fetchRankingPlayers();
+    const { players, levelsByName, onlineByName, cached } =
+      await fetchRankingPlayers();
     res.json({
       players,
       levelsByName,
+      onlineByName,
       pageSize: PAGE_SIZE,
       total: players.length,
       cached,
@@ -393,7 +499,9 @@ app.listen(PORT, () => {
   console.log(`PjsVivos en http://localhost:${PORT}`);
 }).on("error", (err) => {
   if (err.code === "EADDRINUSE") {
-    console.error(`El puerto ${PORT} está en uso. Prueba: set PORT=3010 && npm start`);
+    console.error(
+      `El puerto ${PORT} está en uso. Prueba: set PORT=3010 && npm start`
+    );
   } else {
     console.error(err);
   }

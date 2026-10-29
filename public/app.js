@@ -14,6 +14,9 @@ const prevPageBtn = document.getElementById("prev-page");
 const nextPageBtn = document.getElementById("next-page");
 
 const PAGE_SIZE = 20;
+const GUILDS_KEY = "pjsvivos.guilds";
+const ROSTERS_KEY = "pjsvivos.rosters";
+const ROSTER_TTL_MS = 30 * 60 * 1000;
 
 const state = {
   guilds: [],
@@ -22,6 +25,7 @@ const state = {
   onlinePayloads: [],
   rankingAll: [],
   levelsByName: new Map(),
+  onlineByName: new Map(),
   rankingPage: 1,
   rankingQ: "",
   filterTimer: null,
@@ -44,6 +48,48 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function readLocalGuilds() {
+  try {
+    const raw = localStorage.getItem(GUILDS_KEY);
+    const list = raw ? JSON.parse(raw) : [];
+    return Array.isArray(list) ? list : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeLocalGuilds(list) {
+  localStorage.setItem(GUILDS_KEY, JSON.stringify(list));
+}
+
+function readLocalRosters() {
+  try {
+    const raw = localStorage.getItem(ROSTERS_KEY);
+    const obj = raw ? JSON.parse(raw) : {};
+    return obj && typeof obj === "object" ? obj : {};
+  } catch {
+    return {};
+  }
+}
+
+function writeLocalRosters(map) {
+  localStorage.setItem(ROSTERS_KEY, JSON.stringify(map));
+}
+
+function getCachedRoster(guildId) {
+  const all = readLocalRosters();
+  const hit = all[guildId];
+  if (!hit || !Array.isArray(hit.members)) return null;
+  if (Date.now() - (hit.at || 0) > ROSTER_TTL_MS) return null;
+  return hit.members;
+}
+
+function setCachedRoster(guildId, members) {
+  const all = readLocalRosters();
+  all[guildId] = { members, at: Date.now() };
+  writeLocalRosters(all);
+}
+
 async function api(url, options = {}) {
   const { retries = 5, retryDelayMs = 1500, onRetry, ...fetchOptions } = options;
   let lastError;
@@ -62,8 +108,6 @@ async function api(url, options = {}) {
       if (onRetry) onRetry(attempt, retries, res.status);
       await sleep(retryDelayMs * attempt);
     } catch (err) {
-      // Errores HTTP retryables ya se manejan arriba; aquí caen fallos de red
-      // o el throw final del último intento.
       if (attempt === retries) throw err;
       const msg = String(err && err.message ? err.message : err);
       const retryable =
@@ -116,6 +160,18 @@ function initAccordions() {
       header.setAttribute("aria-expanded", open ? "true" : "false");
     });
   });
+}
+
+function syncVisibleIds() {
+  const enabledIds = new Set(
+    state.guilds.filter((g) => g.enabled).map((g) => g.id)
+  );
+  state.visibleIds = new Set(
+    [...state.visibleIds].filter((id) => enabledIds.has(id))
+  );
+  if (!state.visibleIds.size) {
+    enabledIds.forEach((id) => state.visibleIds.add(id));
+  }
 }
 
 function renderGuildChips() {
@@ -261,25 +317,43 @@ function renderRankingPage() {
     .join("");
 }
 
-async function saveGuilds() {
-  const data = await api("/api/guilds", {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ guilds: state.guilds }),
-  });
-  state.guilds = data.guilds;
-  const enabledIds = new Set(state.guilds.filter((g) => g.enabled).map((g) => g.id));
-  state.visibleIds = new Set([...state.visibleIds].filter((id) => enabledIds.has(id)));
-  if (!state.visibleIds.size) {
-    state.guilds.filter((g) => g.enabled).forEach((g) => state.visibleIds.add(g.id));
-  }
+function persistGuildsLocally() {
+  writeLocalGuilds(state.guilds);
+  syncVisibleIds();
   renderGuildChips();
 }
 
+async function saveGuilds() {
+  persistGuildsLocally();
+  // Best-effort en servidor (en Render puede no persistir en disco)
+  try {
+    await api("/api/guilds", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ guilds: state.guilds }),
+      retries: 2,
+    });
+  } catch {
+    // Los guilds siguen en localStorage
+  }
+}
+
 async function loadGuilds() {
-  const data = await api("/api/guilds");
-  state.guilds = data.guilds || [];
-  state.visibleIds = new Set(state.guilds.filter((g) => g.enabled).map((g) => g.id));
+  const local = readLocalGuilds();
+  if (local.length) {
+    state.guilds = local;
+  } else {
+    try {
+      const data = await api("/api/guilds", { retries: 2 });
+      state.guilds = data.guilds || [];
+      if (state.guilds.length) writeLocalGuilds(state.guilds);
+    } catch {
+      state.guilds = [];
+    }
+  }
+  state.visibleIds = new Set(
+    state.guilds.filter((g) => g.enabled).map((g) => g.id)
+  );
   renderGuildChips();
 }
 
@@ -293,41 +367,94 @@ async function loadAvailableGuilds() {
   }
 }
 
+function onlinePlayersFromRoster(guild, members) {
+  const players = (members || [])
+    .filter((m) => {
+      const key = String(m.nombre || "").toLowerCase();
+      if (state.onlineByName.has(key)) return state.onlineByName.get(key);
+      return m.status === "Online";
+    })
+    .map((m) => ({
+      nombre: m.nombre,
+      clase: m.clase,
+      level: m.level,
+      position: m.position,
+    }));
+
+  return { id: guild.id, guild: guild.name, players };
+}
+
+async function fetchRoster(guild) {
+  const cached = getCachedRoster(guild.id);
+  if (cached) return { members: cached, cached: true };
+
+  const data = await api("/api/guild-roster", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ guild }),
+    retries: 3,
+    retryDelayMs: 2500,
+    onRetry: (attempt, total) => {
+      setStatus(`Roster ${guild.name}… reintento ${attempt}/${total}`);
+    },
+  });
+
+  if (data.error) {
+    return { members: [], error: data.error };
+  }
+
+  setCachedRoster(guild.id, data.members || []);
+  return { members: data.members || [] };
+}
+
 async function loadOnline() {
-  const ids = [...state.visibleIds];
-  if (!ids.length) {
+  const selected = state.guilds.filter(
+    (g) => g.enabled && state.visibleIds.has(g.id)
+  );
+  if (!selected.length) {
     renderOnline([]);
     return;
   }
-  const data = await api(`/api/online?ids=${encodeURIComponent(ids.join(","))}`, {
-    retries: 3,
-    retryDelayMs: 3000,
-    onRetry: (attempt, total) => {
-      setStatus(`Cargando online… reintento ${attempt}/${total}`);
-    },
-  });
-  const guilds = data.guilds || [];
-  renderOnline(guilds);
 
-  // Si todos vinieron con error de navegador, un reintento extra tras esperar
-  const allBrowserFail =
-    guilds.length > 0 &&
-    guilds.every((g) => g.error && /navegador|Reintenta|arranc/i.test(g.error));
-  if (allBrowserFail) {
-    setStatus("Reintentando online…");
-    await sleep(4000);
-    const again = await api(`/api/online?ids=${encodeURIComponent(ids.join(","))}`, {
-      retries: 2,
-      retryDelayMs: 3000,
-    });
-    renderOnline(again.guilds || []);
+  setStatus(`Cargando online (${selected.length})…`);
+
+  // Un guild a la vez: más estable en Render (timeout ~30s) y cachea roster en el navegador
+  const payloads = [];
+  for (const g of selected) {
+    setStatus(`Online: ${g.name}…`);
+    try {
+      const roster = await fetchRoster(g);
+      if (roster.error) {
+        payloads.push({
+          id: g.id,
+          guild: g.name,
+          players: [],
+          error: roster.error,
+        });
+      } else {
+        payloads.push(onlinePlayersFromRoster(g, roster.members));
+      }
+      renderOnline(payloads);
+    } catch (err) {
+      const cached = getCachedRoster(g.id);
+      if (cached) {
+        payloads.push(onlinePlayersFromRoster(g, cached));
+      } else {
+        payloads.push({
+          id: g.id,
+          guild: g.name,
+          players: [],
+          error: err.message || "No se pudo cargar online.",
+        });
+      }
+      renderOnline(payloads);
+    }
   }
 }
 
 async function loadRanking(force = false) {
   if (!force && state.rankingAll.length) {
     renderRankingPage();
-    renderOnline();
     return;
   }
   setStatus("Descargando ranking…");
@@ -342,9 +469,11 @@ async function loadRanking(force = false) {
   state.levelsByName = new Map(
     Object.entries(data.levelsByName || {}).map(([k, v]) => [k, Number(v)])
   );
+  state.onlineByName = new Map(
+    Object.entries(data.onlineByName || {}).map(([k, v]) => [k, Boolean(v)])
+  );
   state.rankingPage = 1;
   renderRankingPage();
-  renderOnline();
 }
 
 async function refreshAll() {
@@ -352,12 +481,11 @@ async function refreshAll() {
   setStatus("Actualizando…");
   try {
     await wakeServer();
-    // Ranking primero (más liviano); online después (Puppeteer)
     await loadRanking(true);
     try {
       setStatus("Cargando online de guilds…");
       await loadOnline();
-    } catch (onlineErr) {
+    } catch {
       renderOnline([
         {
           guild: "Online",
@@ -394,7 +522,11 @@ document.getElementById("add-guild").addEventListener("click", async () => {
   );
   const id = (fromList?.id || nameToId(name)).toLowerCase();
 
-  if (state.guilds.some((g) => g.id === id || g.name.toLowerCase() === name.toLowerCase())) {
+  if (
+    state.guilds.some(
+      (g) => g.id === id || g.name.toLowerCase() === name.toLowerCase()
+    )
+  ) {
     setStatus("Ese guild ya está en la lista");
     return;
   }
@@ -407,8 +539,12 @@ document.getElementById("add-guild").addEventListener("click", async () => {
   state.visibleIds.add(id);
   guildInput.value = "";
   await saveGuilds();
-  await loadOnline();
   setStatus(`Agregado ${fromList?.name || name}`);
+  try {
+    await loadOnline();
+  } catch (err) {
+    setStatus(err.message || "Guild agregado; online pendiente");
+  }
 });
 
 guildChips.addEventListener("click", async (e) => {
@@ -418,11 +554,13 @@ guildChips.addEventListener("click", async (e) => {
     state.guilds = state.guilds.filter((g) => g.id !== removeId);
     state.visibleIds.delete(removeId);
     await saveGuilds();
-    await loadOnline();
+    await loadOnline().catch(() => {});
     return;
   }
 
-  const toggleId = e.target.closest("[data-toggle]")?.getAttribute("data-toggle");
+  const toggleId = e.target
+    .closest("[data-toggle]")
+    ?.getAttribute("data-toggle");
   if (!toggleId) return;
   const guild = state.guilds.find((g) => g.id === toggleId);
   if (!guild) return;
@@ -430,7 +568,7 @@ guildChips.addEventListener("click", async (e) => {
   if (!guild.enabled) state.visibleIds.delete(guild.id);
   else state.visibleIds.add(guild.id);
   await saveGuilds();
-  await loadOnline();
+  await loadOnline().catch(() => {});
 });
 
 filterChips.addEventListener("click", async (e) => {
